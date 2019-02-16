@@ -1,22 +1,62 @@
 import praw
+import config
 import time
-import random
+import os
+import requests
 
-def run():
+main_api = 'https://q4ktfaysw3.execute-api.us-east-1.amazonaws.com/treehacks/legislators?'
+address = 'San Francisco'
+level = NATIONAL_LOWER
+url = main_api + urllib.parse.urlencode({'address': address}{'level': level})
+
+api = requests.get('https://q4ktfaysw3.execute-api.us-east-1.amazonaws.com/treehacks/legislators?address=San Francisco&level=NATIONAL_LOWER')
+
+
+
+print(api.status_code)
+
+def bot_login():
     print('Logging Into Reddit...')
-    #Create Bot with login and private key - username - password
-    bot = praw.Reddit(user_agent='Example Bot 1', client_id='', client_secret='',
-        username='contactyourrep', password='treehacks2018')
+    r = praw.Reddit(user_agent="contact your rep bot", 
+                client_id=config.client_id, 
+                client_secret=config.client_secret,
+                username=config.username, 
+                password=config.password)
     print('Logged in')
+    return r
 
-    subreddit = bot.subreddit('test')                          #Enter Subreddit
-    for submission in subreddit.stream.submissions():
-        print(submission.title)
-        author = str(submission.author)
-        reply_text = 'hello! u/' + author + ' Welcome to the XYZ sub!  \n \n ' 
-        #print(reply_text)
-        submission.reply(reply_text)
-        time.sleep(3)
+def run_bot(r, repliedto):
+    for comment in r.subreddit('test').comments(limit=25):
+    
+        if "test" in comment.body and comment.id not in repliedto and comment.author != r.user.me():
 
-if __name__ == '__main__':
-    run()
+
+            print("String found !")
+            #comment.reply("Hey there, this is a test for the coolest bot ever.")
+            print("replied to comment" + comment.id)
+            repliedto.append(comment.id)
+
+            with open ("repliedto.txt", "a") as f:
+                f.write(comment.id + "\n")
+
+    print("sleeping for ten seconds...")
+    time.sleep(10)
+
+def get_saved_comments():
+    if not os.path.isfile("repliedto.txt"):
+        repliedto = []
+    else:
+        with open("repliedto.txt", "r") as f:
+            repliedto = f.read()
+            repliedto = repliedto.split("\n")
+            repliedto = filter(None, repliedto)
+            repliedto=list(repliedto)
+    return repliedto
+repliedto = []
+repliedto=get_saved_comments()
+
+print(repliedto)
+
+while True:
+    r = bot_login()
+    run_bot(r, repliedto)
