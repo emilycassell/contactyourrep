@@ -3,17 +3,24 @@ import config
 import time
 import os
 import requests
+import urllib.parse
+from parsinjson import create_response 
 
 main_api = 'https://q4ktfaysw3.execute-api.us-east-1.amazonaws.com/treehacks/legislators?'
-address = 'San Francisco'
-level = NATIONAL_LOWER
-url = main_api + urllib.parse.urlencode({'address': address}{'level': level})
+level = 'NATIONAL_LOWER'
+headers = { 'X-API-KEY': '2e1uvo7yeX50ZGHvctPxi8ZWubhggyOydIWvOa5c'}
 
-api = requests.get('https://q4ktfaysw3.execute-api.us-east-1.amazonaws.com/treehacks/legislators?address=San Francisco&level=NATIONAL_LOWER')
+keyworddict = {'San Francisco': 'San Francisco', 'Chicago':'Chicago', 'Utah':'Utah', 'California':'California', 'California Senate': 'California', 'Kamala Harris': 'California', 'Dianne Feinstein':'California', 'Andreas Borgeas': 'California'}
+
+#json_data = requests.get(url, headers=headers).json()
+
+#print(json_data)
+
+#api = requests.get('https://q4ktfaysw3.execute-api.us-east-1.amazonaws.com/treehacks/legislators?address=San Francisco&level=NATIONAL_LOWER')
 
 
 
-print(api.status_code)
+#print(json_data.status_code)
 
 def bot_login():
     print('Logging Into Reddit...')
@@ -26,21 +33,34 @@ def bot_login():
     return r
 
 def run_bot(r, repliedto):
-    for comment in r.subreddit('test').comments(limit=25):
+    for comment in r.subreddit('test').comments(limit=1000):
     
-        if "test" in comment.body and comment.id not in repliedto and comment.author != r.user.me():
+        #if "San Francisco" in comment.body and comment.id not in repliedto and comment.author != r.user.me():
+        for key in keyworddict:
+            if key in comment.body and comment.id not in repliedto and comment.author !=r.user.me():
+                print("String found !")
+                address = keyworddict[key]
+                url = main_api + urllib.parse.urlencode({'address': address})+urllib.parse.urlencode({'level': level})
+                json_data = requests.get(url, headers=headers).json()
+                contactdict = create_response(json_data)
+                #print(contactdict)
 
 
-            print("String found !")
-            #comment.reply("Hey there, this is a test for the coolest bot ever.")
-            print("replied to comment" + comment.id)
-            repliedto.append(comment.id)
+                replytext = ("Mad about what’s going on in your neighborhood? Don’t just complain on reddit, do something! Contact your representatives today! \n\n" + " ".join(str(x) for x in contactdict) + "Find scripts for issues you care about [Here](https://5calls.org/) \n\n" + "If you don’t actively participate in our democracy, Russian bots like me will win. \n\n **Brought to you by treehacks and Phone2action (phone2action.com).")
+                #replytext = ("Mad about what’s going on in your neighborhood? Don’t just complain on reddit, do something! Contact your representative today!" + " ".join(str(x) for x in contactdict) + "Find scripts for issues you care about [Here](https://5calls.org/)" + "If you don’t actively participate in our democracy, Russian bots like me will win.  **Brought to you by treehacks and Phone2action (phone2action.com).")
+           
+                #print(replytext)
 
-            with open ("repliedto.txt", "a") as f:
-                f.write(comment.id + "\n")
+            
+                comment.reply(replytext)
+                print("replied to comment" + comment.id)
+                repliedto.append(comment.id)
 
-    print("sleeping for ten seconds...")
-    time.sleep(10)
+                with open ("repliedto.txt", "a") as f:
+                    f.write(comment.id + "\n")
+
+    print("sleeping for a sec...")
+    time.sleep(1)
 
 def get_saved_comments():
     if not os.path.isfile("repliedto.txt"):
