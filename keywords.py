@@ -1,7 +1,7 @@
 keyworddict = {'San Francisco': 'San Francisco', 
 				'Chicago':'Chicago', 
 				'Utah':'Utah', 
-				'California':'California', 
+				'Californian':'California', 
 				'California Senator': 'California',
 				'Pete Aguilar': 'Redlands',
 				'John J. Allen': 'Oakland',
