@@ -15,12 +15,6 @@ url = main_api + urllib.parse.urlencode({'address': address})+urllib.parse.urlen
 headers = { 'X-API-KEY': '2e1uvo7yeX50ZGHvctPxi8ZWubhggyOydIWvOa5c'}
 
 json_data = requests.get(url, headers=headers).json()
-#parsed_json_data = json.loads(json_data)
-
-#print(json_data['officials'][0]['office_location']["phone_1"])
-#print(json_data['officials'][0]['first_name'] + ' ' + json_data['officials'][0]['last_name'])
-#print(json_data['officials'][0]['first_name'] + ' ' + json_data['officials'][0]['last_name'] +': '+ json_data['officials'][0]['office_location']["phone_1"])
-#print(json_data['officials'][1]['first_name'] + ' ' + json_data['officials'][1]['last_name'] +': '+ json_data['officials'][1]['office_location']["phone_1"])
 
 #data not 100% accruate ??
 
@@ -38,8 +32,6 @@ def create_response(data):
 		if (data['officials'][i]['office_details']['position'] == 'Representative') or (json_data['officials'][i]['office_details']['position'] == 'Senator') and json_data['officials'][i]['term_end']>"2019-01-01 00:00:00" :
 			name.append(json_data['officials'][i]['office_details']['position']+ ' ' + json_data['officials'][i]['first_name'] + ' ' + json_data['officials'][i]['last_name'] + ': '+ ' ' + json_data['officials'][i]['office_location']["phone_1"] + "\n\n")
 			
-			
-	#print(name)
 	return (name)
 
 
